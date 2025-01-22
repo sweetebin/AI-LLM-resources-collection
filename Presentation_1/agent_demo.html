@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>LLM Agent Demo</title>
+
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <style>
+        body {
+            background-color: #191919;
+            color: #fff;
+            font-family: monospace;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .left-section {
+            flex: 1;
+            background: #252525;
+            padding: 20px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .right-section {
+            flex: 1;
+            background: #252525;
+            padding: 20px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .system-prompt {
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 5px;
+            flex-grow: 1;
+            border: 1px solid #333;
+        }
+
+        .system-prompt textarea {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: #888;
+            font-family: monospace;
+            resize: none;
+            outline: none;
+            font-size: 14px;
+            scrollbar-width: thin;
+            scrollbar-color: #569cd6 #1e1e1e;
+        }
+
+        .system-prompt textarea::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .system-prompt textarea::-webkit-scrollbar-track {
+            background: #1e1e1e;
+            border-radius: 4px;
+        }
+
+        .system-prompt textarea::-webkit-scrollbar-thumb {
+            background: #569cd6;
+            border-radius: 4px;
+            border: 1px solid #1e1e1e;
+        }
+
+        .system-prompt textarea::-webkit-scrollbar-thumb:hover {
+            background: #4a85b9;
+        }
+
+        h2 {
+            color: #569cd6;
+            margin-bottom: 15px;
+        }
+
+        .message-container {
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 5px;
+            flex-grow: 1;
+            overflow-y: auto;
+            border: 1px solid #333;
+            scrollbar-width: thin;
+            scrollbar-color: #569cd6 #1e1e1e;
+        }
+
+        .message-container::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .message-container::-webkit-scrollbar-track {
+            background: #1e1e1e;
+            border-radius: 4px;
+        }
+
+        .message-container::-webkit-scrollbar-thumb {
+            background: #569cd6;
+            border-radius: 4px;
+            border: 1px solid #1e1e1e;
+        }
+
+        .message-container::-webkit-scrollbar-thumb:hover {
+            background: #4a85b9;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            background: #2d2d2d;
+            border-left: 2px solid transparent;
+        }
+
+        .message[data-role="assistant"] {
+            border-left-color: #569cd6;
+        }
+
+        .message[data-role="user"] {
+            border-left-color: #4CAF50;
+            background: #263238;
+        }
+
+        .button-container {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background: #569cd6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .clear-button {
+            background: #c74646;
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        .message pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        .message:last-child {
+            border-left: 2px solid #4CAF50;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        class OllamaClient {
+            constructor(baseUrl = 'localhost:11434') {
+                this.baseUrl = baseUrl;
+                this.ws = null;
+            }
+
+            async createStreamingCompletion({ model = 'qwen2.5-coder:7b', messages, temperature = 0.7, onToken = () => { } }) {
+                try {
+                    const response = await fetch(`http://${this.baseUrl}/api/chat`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            model,
+                            messages,
+                            stream: true,
+                            temperature,
+                        }),
+                    });
+
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let buffer = '';
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop() || '';
+
+                        for (const line of lines) {
+                            if (line.trim()) {
+                                try {
+                                    const data = JSON.parse(line);
+                                    onToken(data);
+                                    if (data.done) {
+                                        return;
+                                    }
+                                } catch (e) {
+                                    console.error('Error parsing JSON:', e);
+                                }
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error in streaming completion:', error);
+                    throw error;
+                }
+            }
+        }
+
+        // Initialize the client
+        // Define available functions for the agent
+        const availableFunctions = {
+            // Get current time
+            get_time: async () => {
+                return `Current time is: ${new Date().toLocaleString()}`;
+            },
+
+            // Calculate simple math
+            calculate: async (expression) => {
+                try {
+                    return `Calculation result: ${eval(expression)}`;
+                } catch (e) {
+                    return `Error calculating: ${expression}`;
+                }
+            },
+
+            // Weather lookup (mock)
+            get_weather: async (location) => {
+                return `Weather in ${location}: 10 C, Sunny`;
+            },
+
+            // Save report to file
+            save_report: async (title, content) => {
+                try {
+                    // Create a Blob with the report content
+                    const reportContent = `Report Title: ${title}\nContent: ${content}\nGenerated: ${new Date().toLocaleString()}`;
+                    const blob = new Blob([reportContent], { type: 'text/plain' });
+                    
+                    // Create download link
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'agent_report.txt';
+                    
+                    // Trigger download
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    
+                    return `Report "${title}" saved to agent_report.txt`;
+                } catch (error) {
+                    console.error('Error creating file:', error);
+                    return `Error: ${error.message}`;
+                }
+            }
+        };
+
+        // Function parser
+        const parseFunctionCall = async (jsonResponse) => {
+            try {
+                // Ensure we're working with an object
+                const response = typeof jsonResponse === 'string' ? JSON.parse(jsonResponse) : jsonResponse;
+
+                // If no action specified, return the response as is
+                if (!response.action) {
+                    return response;
+                }
+
+                // Validate function exists
+                const functionName = response.action;
+                if (!availableFunctions[functionName]) {
+                    throw new Error(`Function "${functionName}" not found. Available functions: ${Object.keys(availableFunctions).join(', ')} ; Note you can only call one function at a time`);
+                }
+
+                // Extract function parameters based on function type
+                const details = response.details || {};
+                let result;
+                
+                try {
+                    if (functionName === 'save_report') {
+                        // Validate required parameters
+                        if (!details.title || !details.content) {
+                            throw new Error('Missing required parameters for save_report: title and content are required');
+                        }
+                        result = await availableFunctions[functionName](details.title, details.content);
+                    } else {
+                        // Handle single parameter functions
+                        const paramMap = {
+                            'calculate': details.expression,
+                            'get_weather': details.location,
+                            'get_time': null // No parameters needed
+                        };
+                        
+                        const param = paramMap[functionName];
+                        if (param === undefined) {
+                            throw new Error(`Unknown function type: ${functionName}`);
+                        }
+                        
+                        result = await availableFunctions[functionName](param);
+                    }
+
+                    return {
+                        thought: response.thought || 'Executing function',
+                        action: functionName,
+                        details: {
+                            ...details,
+                            result: result
+                        }
+                    };
+                } catch (execError) {
+                    throw new Error(`Function execution failed: ${execError.message}`);
+                }
+            } catch (error) {
+                console.error('Error in parseFunctionCall:', error);
+                return {
+                    thought: "Error processing function call",
+                    action: "error",
+                    details: {
+                        error: error.message,
+                        result: `Error: ${error.message}`,
+                        timestamp: new Date().toISOString()
+                    }
+                };
+            }
+        };
+
+        const ollama = new OllamaClient();
+
+        const App = () => {
+            const [messages, setMessages] = React.useState([]);
+            const [isLoading, setIsLoading] = React.useState(false);
+            const [currentResponse, setCurrentResponse] = React.useState('');
+            const [userInput, setUserInput] = React.useState('');
+            const messageContainerRef = React.useRef(null);
+
+            const handleUserMessage = () => {
+                if (!userInput.trim()) return;
+
+                // Add user message to the messages array
+                setMessages(prev => [...prev, {
+                    role: 'user',
+                    content: userInput
+                }]);
+
+                // Clear input
+                setUserInput('');
+
+                // Automatically generate response
+                setTimeout(generateNext, 100);
+            };
+            const [systemPrompt, setSystemPrompt] = React.useState(
+                `<role>
+You are an assistant that helps user with tasks.
+You are capable of function calling
+
+Current Location: Moscow
+</role>
+<task>
+get time, get weather, then save the report
+Be brief
+</task>
+<tools>
+You have access to these functions:
+- get_time(): Get the current time
+- calculate(expression): Calculate mathematical expressions
+- get_weather(location): Get weather for a location
+- save_report(title, content): Save a report to a text file
+
+You can execute only ONE function at a time
+</tools>
+<output_format>
+Respond with ONLY a clean JSON object. Do not wrap it in 'role' or 'content'.
+Example format:
+{
+    "thought": "what you're thinking",
+    "action": "action/function name",
+    "details": {
+        "arg_name": "arg_value" //argument name and value, check your <tools>
+    }
+}
+</output_format>
+`);
+
+            const generateNext = async () => {
+                setIsLoading(true);
+                setCurrentResponse('');
+                let fullResponse = '';
+
+                try {
+                    await ollama.createStreamingCompletion({
+                        model: 'gemma2',
+                        messages: [
+                            {
+                                role: 'system',
+                                content: systemPrompt
+                            },
+                            ...messages.map(msg => ({
+                                role: msg.role || 'assistant',
+                                content: typeof msg === 'string' ? msg : JSON.stringify(msg)
+                            })),
+                        ],
+                        onToken: (data) => {
+                            if (data.message && data.message.content) {
+                                fullResponse += data.message.content;
+                                setCurrentResponse(fullResponse);
+                            }
+                        }
+                    });
+
+                    if (fullResponse) {
+                        console.log(fullResponse)
+                        // First add the original response
+                        setMessages(prev => [...prev, {
+                            role: 'assistant',
+                            content: fullResponse
+                        }]);
+
+                        // Parse and execute any JSON function calls
+                        try {
+                            // Extract and clean JSON from the response
+                            let cleanResponse = fullResponse;
+                            
+                            // Try to extract JSON if wrapped in code blocks
+                            const jsonMatch = fullResponse.match(/```(?:json)?\s*({[\s\S]*?})\s*```/);
+                            if (jsonMatch) {
+                                cleanResponse = jsonMatch[1];
+                            }
+                            
+                            // Clean up the response
+                            cleanResponse = cleanResponse
+                                .replace(/^[\s\r\n]*(.*?)[\s\r\n]*$/s, '$1') // Remove leading/trailing whitespace and newlines
+                                .replace(/,\s*}/g, '}')  // Remove trailing commas
+                                .replace(/,\s*]/g, ']'); // Remove trailing commas in arrays
+                            
+                            // Find the first occurrence of a JSON object
+                            const jsonStart = cleanResponse.indexOf('{');
+                            const jsonEnd = cleanResponse.lastIndexOf('}');
+                            
+                            if (jsonStart !== -1 && jsonEnd !== -1) {
+                                cleanResponse = cleanResponse.substring(jsonStart, jsonEnd + 1);
+                            }
+                            
+                            console.log('Cleaned response:', cleanResponse);
+                            
+                            let functionCallData;
+                            try {
+                                functionCallData = JSON.parse(cleanResponse);
+                                console.log('Parsed function data:', functionCallData);
+                                
+                                // If response has role/content format, extract the content
+                                if (functionCallData.role === 'assistant' && functionCallData.content) {
+                                    // If content is a string that looks like JSON, parse it
+                                    if (typeof functionCallData.content === 'string') {
+                                        try {
+                                            functionCallData = JSON.parse(functionCallData.content);
+                                        } catch (e) {
+                                            console.error('Failed to parse content as JSON:', e);
+                                            // Add parsing error to messages
+                                            setMessages(prev => [...prev, {
+                                                role: 'user',
+                                                content: "Error parsing JSON content: " + e.message
+                                            }]);
+                                            return;
+                                        }
+                                    } else {
+                                        // If content is already an object, use it directly
+                                        functionCallData = functionCallData.content;
+                                    }
+                                }
+                                
+                                // At this point functionCallData should be the actual function call object
+                                if (functionCallData.action) {
+                                    const functionResult = await parseFunctionCall(functionCallData);
+                                    // Always add function result to messages, whether success or error
+                                    setMessages(prev => [...prev, {
+                                        role: 'user',
+                                        content: (functionResult.details && functionResult.details.result) || 
+                                                (functionResult.details && functionResult.details.error) || 
+                                                "Function executed without result"
+                                    }]);
+                                }
+                            } catch (e) {
+                                console.error('Error parsing function call data:', e);
+                                // Add parsing error to messages
+                                setMessages(prev => [...prev, {
+                                    role: 'user',
+                                    content: "Error parsing function call: " + e.message
+                                }]);
+                            }
+                        } catch (e) {
+                            console.error('Error processing response:', e);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error generating response:', error);
+                    const errorMessage = {
+                        thought: "Error occurred during processing",
+                        action: "error_handling",
+                        details: {
+                            error: error.message,
+                            timestamp: new Date().toISOString(),
+                            type: error.name || 'UnknownError',
+                            context: fullResponse || 'No response received'
+                        }
+                    };
+                    setMessages(prev => [...prev, errorMessage]);
+                } finally {
+                    setIsLoading(false);
+                    setCurrentResponse('');
+                }
+            };
+
+            const handlePromptChange = (e) => {
+                setSystemPrompt(e.target.value);
+            };
+
+            // Auto-scroll to bottom when new content arrives
+            React.useEffect(() => {
+                if (messageContainerRef.current) {
+                    messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+                }
+            }, [messages, currentResponse]);
+
+            // Cleanup effect
+            React.useEffect(() => {
+                return () => {
+                    setMessages([]);
+                    setCurrentResponse('');
+                };
+            }, []);
+
+            return (
+                <div className="container">
+                    <div className="left-section">
+                        <h2>System Prompt</h2>
+                        <div className="system-prompt">
+                            <textarea
+                                value={systemPrompt}
+                                onChange={handlePromptChange}
+                                spellCheck="false"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="right-section">
+                        <h2>Agent Responses</h2>
+                        <div className="message-container" ref={messageContainerRef}>
+                            {messages.map((msg, index) => (
+                                <div key={index} className="message" data-role={msg.role || 'assistant'}>
+                                    <pre dangerouslySetInnerHTML={{
+                                        __html: msg.content.replace(/({[\s\S]*})/g, (match) => {
+                                            // Highlight JSON parts while preserving other text
+                                            try {
+                                                JSON.parse(match); // Validate JSON
+                                                return match
+                                                    .replace(/("(?:\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+                                                        function (token) {
+                                                            let color = '#9CDCFE'; // for numbers
+                                                            if (/^"/.test(token)) {
+                                                                color = token.endsWith(':') ? '#569CD6' : '#CE9178'; // key : value
+                                                            } else if (/true|false/.test(token)) {
+                                                                color = '#569CD6'; // booleans
+                                                            } else if (/null/.test(token)) {
+                                                                color = '#569CD6'; // null
+                                                            }
+                                                            return `<span style="color: ${color}">${token}</span>`;
+                                                        })
+                                                    .replace(/[{}\[\]]/g, token =>
+                                                        `<span style="color: #D4D4D4">${token}</span>`
+                                                    )
+                                                    .replace(/,/g, '<span style="color: #D4D4D4">,</span>');
+                                            } catch (e) {
+                                                return match; // Return unchanged if not valid JSON
+                                            }
+                                        })
+                                    }} />
+                                </div>
+                            ))}
+                            {currentResponse && (
+                                <div className="message">
+                                    <pre dangerouslySetInnerHTML={{
+                                        __html: currentResponse
+                                            .replace(/("(?:\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+                                                function (match) {
+                                                    let color = '#9CDCFE'; // for numbers
+                                                    if (/^"/.test(match)) {
+                                                        color = match.endsWith(':') ? '#569CD6' : '#CE9178'; // key : value
+                                                    } else if (/true|false/.test(match)) {
+                                                        color = '#569CD6'; // booleans
+                                                    } else if (/null/.test(match)) {
+                                                        color = '#569CD6'; // null
+                                                    }
+                                                    return `<span style="color: ${color}">${match}</span>`;
+                                                }
+                                            )
+                                            .replace(/[{}\[\]]/g, match =>
+                                                `<span style="color: #D4D4D4">${match}</span>`
+                                            )
+                                            .replace(/,/g, '<span style="color: #D4D4D4">,</span>')
+                                    }} />
+                                </div>
+                            )}
+                        </div>
+
+                        <div style={{
+                            marginTop: '10px',
+                            marginBottom: '10px',
+                            display: 'flex',
+                            gap: '10px'
+                        }}>
+                            <input
+                                type="text"
+                                value={userInput}
+                                onChange={(e) => setUserInput(e.target.value)}
+                                onKeyPress={(e) => {
+                                    if (e.key === 'Enter') {
+                                        handleUserMessage();
+                                    }
+                                }}
+                                style={{
+                                    flex: 1,
+                                    background: '#1e1e1e',
+                                    border: '1px solid #333',
+                                    borderRadius: '4px',
+                                    padding: '10px',
+                                    color: '#fff',
+                                    fontFamily: 'monospace'
+                                }}
+                                placeholder="Type a message and press Enter..."
+                            />
+                            <button
+                                onClick={handleUserMessage}
+                                disabled={!userInput.trim() || isLoading}
+                                style={{
+                                    background: '#4CAF50'
+                                }}
+                            >
+                                Send
+                            </button>
+                        </div>
+
+                        <div className="button-container">
+                            <button onClick={generateNext} disabled={isLoading}>
+                                {isLoading ? 'Generating...' : 'Generate Next'}
+                            </button>
+                            <button onClick={() => setMessages([])} className="clear-button">
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+
+</html>

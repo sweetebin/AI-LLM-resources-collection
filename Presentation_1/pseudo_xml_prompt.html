@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Структура Промпта</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #191919;
+            color: #fff;
+            font-family: monospace;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            font-family: monospace;
+            color: #fff;
+        }
+
+        .section {
+            flex: 1;
+            background: #252525;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .prompt-area {
+            width: 100%;
+            height: 90%;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border: 1px solid #444;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: monospace;
+            resize: none;
+        }
+
+        .tag-section {
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            color: #d4d4d4;
+            margin-bottom: 15px;
+        }
+
+        .tag-section h3 {
+            color: #569cd6;
+            margin-bottom: 10px;
+        }
+
+        .bullet-point {
+            margin-left: 15px;
+        }
+
+        .explanation-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="section">
+            <h2>Промпт для Проверки Безопасности Android</h2>
+            <textarea id="promptArea" class="prompt-area" spellcheck="false"><роль>Эксперт по Безопасности Android</роль>
+
+<компетенции>
+- Безопасность Android приложений
+- Уязвимости нативного кода
+- Практики безопасного кодирования
+- OWASP Mobile Top 10
+</компетенции>
+
+<задача>Проверить предоставленный код на уязвимости</задача>
+
+<направления>
+- Реализация шифрования данных
+- Обработка разрешений
+- Валидация входных данных
+- Механизмы аутентификации
+- Безопасное хранение данных
+</направления>
+
+<формат_ответа>
+- Найденные уязвимости
+- Уровень критичности
+- Описание последствий
+- Рекомендации по исправлению
+- Советы по лучшим практикам
+</формат_ответа></textarea>
+        </div>
+
+        <div class="section">
+            <div class="explanation-content">
+                <div class="tag-section">
+                    <h3>Структурное Восприятие</h3>
+                    <div class="bullet-point">-LLM обучены на огромных наборах XML/HTML документов</div>
+                    <div class="bullet-point">-Теги создают четкие семантические границы для контекста</div>
+                    <div class="bullet-point">-Можно создавать сложную иерархию (пока только для SOTA)</div>
+                </div>
+
+                <div class="tag-section">
+                    <h3>Точность Обработки</h3>
+                    <div class="bullet-point">-Теги действуют как явные маркеры для разных типов информации</div>
+                    <div class="bullet-point">-Снижается когнитивная нагрузка на модель при определении контекста</div>
+                    <div class="bullet-point">-Уменьшается вероятность "галлюцинаций" из-за четких границ данных</div>
+                </div>
+
+                <div class="tag-section">
+                    <h3>Контекстное Программирование</h3>
+                    <div class="bullet-point">-Теги работают как "мягкие промпты" внутри основного промпта</div>
+                    <div class="bullet-point">-Каждый тег задает микро-контекст для своего содержимого</div>
+                    <div class="bullet-point">-Модель лучше удерживает заданные параметры на протяжении всего ответа</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

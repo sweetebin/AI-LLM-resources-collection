@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>In-Context Learning Demo</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            background-color: #191919;
+            color: #fff;
+            font-family: monospace;
+        }
+
+        .container {
+            padding: 20px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .context-window {
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            line-height: 1.5;
+            transition: all 0.3s ease;
+            transform-origin: top;
+        }
+
+        .context-window:hover {
+            border-color: #666;
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .token {
+            display: inline-block;
+            padding: 2px 4px;
+            margin: 2px;
+            border-radius: 3px;
+            transition: opacity 0.3s;
+        }
+
+        .button-container {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background-color: #555;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        button:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+
+        .response {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #2a2a2a;
+            border-radius: 5px;
+            animation: slideDown 0.3s ease-out;
+            transform-origin: top;
+        }
+
+        .prompt-container {
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: slideIn 0.5s ease-out forwards;
+        }
+
+        .prompt-container:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .prompt-container:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 1;
+            }
+
+            20% {
+                transform: scale(25, 25);
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(40, 40);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: scaleY(0);
+            }
+
+            to {
+                opacity: 1;
+                transform: scaleY(1);
+            }
+        }
+
+        .typing {
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typing 1s steps(40, end);
+            margin: 0;
+        }
+
+        @keyframes typing {
+            from {
+                width: 0
+            }
+
+            to {
+                width: 100%
+            }
+        }
+
+        .cursor {
+            animation: blink 1s step-end infinite;
+            margin-left: 2px;
+        }
+
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        function Demo() {
+            const [showResponses, setShowResponses] = React.useState(false);
+            const [streamedText, setStreamedText] = React.useState(['', '']);
+
+            const prompts = [
+                {
+                    text: "При импорте pandas в Python появляется ошибка 'Module not found'. Что делать?",
+                    response: "Чтобы исправить эту ошибку, вам нужно установить пакет pandas. Выполните команду 'pip install pandas' в командной строке или терминале. Если проблема сохраняется, убедитесь, что вы используете правильное окружение Python и pip корректно настроен в вашей системе.",
+                },
+                {
+                    text: `Контекст базы знаний:
+- Компания использует Python 3.8 в виртуальных окружениях
+- Стандартная конфигурация для data science включает pandas 1.4.2
+- Известная проблема с компьютерами M1 Mac требует особых шагов установки
+- Политика компании требует использования requirements.txt для зависимостей
+
+Вопрос: При импорте pandas в Python появляется ошибка 'Module not found'. Что делать?`,
+                    response: `Исходя из настроек нашей компании, вот как решить проблему с импортом pandas:
+
+1. Сначала активируйте виртуальное окружение проекта:
+   source venv/bin/activate  # Для Unix/Mac
+   .\\venv\\Scripts\\activate  # Для Windows
+
+2. Проверьте версию Python:
+   python --version  # Должно показать Python 3.8.x
+
+3. Установите зависимости из стандартного requirements.txt:
+   pip install -r requirements.txt
+
+Если у вас M1 Mac, необходимы дополнительные шаги:
+1. Установите Rosetta 2, если ещё не установлена
+2. Используйте специальную команду:
+   arch -x86_64 pip install pandas==1.4.2
+
+Если проблема осталась, выполните:
+pip list | grep pandas
+И отправьте результат команды в службу поддержки.`,
+                }
+            ];
+
+            React.useEffect(() => {
+                if (showResponses) {
+                    prompts.forEach((prompt, index) => {
+                        let charIndex = 0;
+                        const intervalId = setInterval(() => {
+                            if (charIndex <= prompt.response.length) {
+                                setStreamedText(prev => {
+                                    const newTexts = [...prev];
+                                    newTexts[index] = prompt.response.slice(0, charIndex);
+                                    return newTexts;
+                                });
+                                charIndex++;
+                            } else {
+                                clearInterval(intervalId);
+                            }
+                        }, 20); // Adjust speed here
+
+                        return () => clearInterval(intervalId);
+                    });
+                } else {
+                    setStreamedText(['', '']);
+                }
+            }, [showResponses]);
+
+            return (
+                <div className="container">
+                    <h2 className="typing">In-Context Learning Demo</h2>
+                    {prompts.map((prompt, index) => (
+                        <div key={index} className="prompt-container">
+                            <div className="context-window">
+                                <strong>Prompt {index + 1}:</strong> {prompt.text}
+                            </div>
+                            {showResponses && (
+                                <div className="response">
+                                    <strong>Response:</strong> {streamedText[index]}
+                                    <span className="cursor">|</span>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                    <div className="button-container">
+                        <button
+                            onClick={() => setShowResponses(!showResponses)}
+                        >
+                            {showResponses ? "Hide Responses" : "Generate Responses"}
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<Demo />, document.getElementById('root'));
+    </script>
+</body>
+
+</html>

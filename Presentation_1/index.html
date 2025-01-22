@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformers Presentation</title>
+
+    <!-- Make sure to load these CSS files first -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/black.css">
+    <link rel="stylesheet" href="assets/css/custom.css">
+</head>
+
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <!-- Title Slide -->
+            <section>
+                <h2>Трансформеры:</h2>
+                <h3>От предсказания Токенов к искуственному Интеллекту</h3>
+            </section>
+
+            <!-- Introduction -->
+            <section>
+                <h2>Эволюция Архитектуры Трансформеров</h2>
+                <p>2017: Статья "Attention Is All You Need"</p>
+                <p>2021: Mixture of Experts (MoE), Sparse Attention</p>
+                <p>2023: Flash Attention, State Space Models</p>
+                <p>2024: CoT Reasoners (o1, o3, QwQ)</p>
+            </section>
+
+            <!-- How It Works -->
+            <section>
+                <section>
+                    <h2>Как оно работает?</h2>
+                </section>
+                <section>
+                    <h2>Машина генерации нового токена</h2>
+                    <img src="assets/images/IM_A_MACHINE_MEME.png" alt="Voice Synthesis Example"
+                        style="max-height: 500px;">
+                </section>
+                <section>
+                    <iframe src="transformer.html" width="900" height="550" frameborder="0"></iframe>
+                </section>
+                <section>
+                    <h2>Токенизация</h2>
+                    <p>Процесс разбиения текста на маленькие части (токены), которые модель может обработать</p>
+                </section>
+                <section>
+                    <iframe src="tokenizer.html" width="900" height="550" frameborder="0"></iframe>
+                </section>
+                <section>
+                    <h2>Контекстное окно</h2>
+                    <div>
+                        <ul>
+                            <li>Ограниченная "память" модели при обработке текста</li>
+                            <li>Размер окна = макс. длина последовательности токенов</li>
+                            <li>Примеры:
+                                <ul>
+                                    <li>GigaChat: 32K токенов</li>
+                                    <li>GPT-4o: 128K токенов</li>
+                                    <li>Claude 3.5: 200K токенов</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+                <section>
+                    <iframe src="context_window.html" width="900" height="550" frameborder="0"></iframe>
+                </section>
+            </section>
+
+            <!-- Prompting & Interaction (Placeholder) -->
+            <section>
+                <section>
+                    <h2>Промптинг и Взаимодействие</h2>
+                </section>
+                <section>
+                    <h2>In-context Learning</h2>
+                    <p>Способность модели учиться на примерах прямо в контексте диалога без дополнительного обучения</p>
+                </section>
+                <section>
+                    <iframe src="in_context_learning.html" width="900" height="550" frameborder="0"></iframe>
+                </section>
+                <section>
+                    <h2>Prompt Engineering</h2>
+                    <p>Искусство составления эффективных запросов к ИИ</p>
+                </section>
+
+                <section>
+                    <h3>Базовые Принципы</h3>
+                    <ul>
+                        <li>Четкость и конкретность</li>
+                        <li>Контекст и детали</li>
+                        <li>Пошаговые инструкции</li>
+                        <li>Указание формата ответа</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Практический Пример</h3>
+                    <div style="text-align: left; font-size: 0.8em;">
+                        ❌ Плохой промпт:
+                        <pre>Сгенерируй SQL скрипт, чтобы найти пользователей, которые поставили низкую оценку</pre>
+
+                        ✅ Хороший промпт:
+                        <pre>РОЛЬ: Ты - интерфейс postgres, преобразующий запросы естественного языка в SQL скрипты
+                            
+СХЕМА ТАБЛИЦЫ:
+USER_ID(строка),
+REVEW_RATING(целочисленное 0-5),
+CREATED_AT(таймстемп),
+USER_NAME(строка)
+
+ФОРМАТ ВЫВОДА: Корректный SQL скрипт для postgres, без комментариев
+
+ЗАПРОС: Найди пользователей, которые поставили низкую оценку, низкая оценка это 0, 1, 2</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>Продвинутые Техники</h3>
+                    <ul>
+                        <li>Pseudo XML</li>
+                        <li>Chain-of-Thought: "Let's think step by step..."</li>
+                        <li>Few-Shot Prompting: Обучение на примерах</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>pseudo XML</h3>
+                    <iframe src="pseudo_xml_prompt.html" style width="1200" height="600" frameborder="0"
+                        frameborder="0">
+                    </iframe>
+                </section>
+
+                <section>
+                    <h3>Chain Of Thought</h3>
+                    <iframe src="step_by_step_reasoning.html" style width="1200" height="600" frameborder="0"
+                        frameborder="0">
+                    </iframe>
+                </section>
+
+                <section>
+                    <h3>Few Shot Prompt</h3>
+                    <iframe src="few_shot_prompting.html" style width="1200" height="600" frameborder="0"
+                        frameborder="0">
+                    </iframe>
+                </section>
+
+                <section>
+                    <h3>Практические Рекомендации</h3>
+                    <ul>
+                        <li>Большинство проблем с SOTA - skill issue</li>
+                        <li>Явно структурируйте запрос</li>
+                        <li>Четко укажите ограничения</li>
+                        <li>Не бойтесь уточнять и переспрашивать, спорить</li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Agents & Automation (Placeholder) -->
+            <section>
+                <section>
+                    <h2>Агенты и Автоматизация</h2>
+                </section>
+                <section>
+                    <h2>Агент</h2>
+                    <ul>
+                        <li>Вызов LLM в цикле</li>
+                        <li>Возможность вызывать функции</li>
+                        <li>Возможность мутировать системную инструкцию</li>
+                        <li>Возможность использовать "память"</li>
+                    </ul>
+                </section>
+                <section>
+                    <iframe src="http://localhost:8080/" width="1280" height="700" frameborder="0"></iframe>
+                </section>
+            </section>
+
+            <section>
+                <section>
+                    <h2>Симуляции мира NVIDIA</h2>
+                </section>
+                <section>
+                    <h2>NVIDIA Cosmos Platform</h2>
+                    <div class="centered-video">
+                        <div>
+                            <video width="800" height="450" autoplay loop muted>
+                                <source src="assets/videos/Nvidia_cosmos.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <section>
+                <section>
+                    <h2>Генерация Аудио</h2>
+                    <ul>
+                        <li>ElevenLabs, Udio</li>
+                        <li>Suno, MusicGen</li>
+                        <li>NotebookLM</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2>Примеры</h2>
+                    <img src="assets/images/example_audio_gen1.png" alt="Voice Synthesis Example"
+                        style="max-height: 500px;">
+                </section>
+                <section>
+                    <img src="assets/images/example_audio_gen2.png" alt="Music Generation Example"
+                        style="max-height: 500px;">
+                </section>
+                <section>
+                    <img src="assets/images/example_audio_gen3.png" alt="Audio Processing Example"
+                        style="max-height: 500px;">
+                </section>
+
+            </section>
+
+            <section>
+                <section>
+                    <h2>Творческая Генерация</h2>
+                    <ul>
+                        <li>Изображения: Stable Diffusion, Midjourney, DALL-E</li>
+                        <li>Видео: Sora, Runway Gen-3, Veo-2</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2>Как было (2023)</h2>
+                </section>
+                <section>
+                    <div class="centered-video">
+                        <div>
+                            <p>"Will Smith eating spaghetti"</p>
+                            <video width="800" height="450" autoplay loop muted>
+                                <source src="assets/videos/2023_will_smith_spaggeti.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <h2>2024-2025...</h2>
+                </section>
+                <section>
+                    <div class="centered-video">
+                        <div>
+                            <p>"Will Smith eating spaghetti"</p>
+                            <video width="800" height="450" autoplay loop muted>
+                                <source src="assets/videos/2024_will_smith_spaggeti.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <!-- AGI Discussion -->
+            <section>
+                <section>
+                    <h2>Кто такой ваш "AGI" и причины тряски</h2>
+                </section>
+                <section>
+                    <h2>Artificial General Intelligence (AGI)</h2>
+                    <div style="text-align: left; margin: 10px auto;">
+                        <p style="margin-bottom: 20px;">Искусственный интеллект, способный:</p>
+                        <ul style="margin: 0; padding-left: 20px;">
+                            <li>Понимать и выполнять любые интеллектуальные задачи как человек или лучше</li>
+                            <li>Обучаться новым навыкам без специальной подготовки</li>
+                            <li>Переносить знания из одной области в другую</li>
+                        </ul>
+                    </div>
+                </section>
+                <section>
+                    <h2>GPQA: Тестирование на Уровне PhD</h2>
+                    <img src="assets/images/gpqa_phd_questions.png" alt="GPQA PhD Questions" style="max-height: 500px;">
+                </section>
+                <section>
+                    <h2>Стоимость Обучения LLM</h2>
+                    <img src="assets/images/cost_training_llm.png" alt="LLM Training Costs" style="max-height: 500px;">
+                </section>
+                <section>
+                    <div class="profile-card">
+                        <div class="profile-info">
+                            <blockquote>
+                                "Предсказание следующего токена достаточно для AGI"
+                            </blockquote>
+                            <p>— Илья Сутскевер</p>
+                            <div class="bio">
+                                <p>- Соавтор "Attention Is All You Need" (2017)</p>
+                                <p>- Сооснователь и главный научный сотрудник OpenAI (2015-2024)</p>
+                                <p>- Основатель Safe Superintelligence Inc. (2024)</p>
+                            </div>
+                        </div>
+                        <div class="profile-photo">
+                            <img src="assets/images/sustkever.png" alt="Илья Сутскевер">
+                            <div class="company-logos">
+                                <img src="assets/images/openAI_logo.png" alt="OpenAI Logo">
+                                <img src="assets/images/SSI_logo.png" alt="SSI Logo">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class="profile-card">
+                        <div class="profile-info">
+                            <blockquote>
+                                "Все пытаются раздуть хайп вокруг ИИ. А на самом деле хайпа недостаточно - то, что умеет
+                                искусственный интеллект уже сегодня, выходит за пределы понимания большинства людей."
+                            </blockquote>
+                            <p>— Дженсен Хуанг</p>
+                            <div class="bio">
+                                <p>- CEO NVIDIA</p>
+                                <p>- Пионер GPU и AI-ускорителей</p>
+                                <p>- Владелец невероятной куртки</p>
+                            </div>
+                        </div>
+                        <div class="profile-photo">
+                            <img src="assets/images/jensen_huang.png" alt="Дженсен Хуанг">
+                            <div class="company-logos">
+                                <img src="assets/images/nvidia_logo.png" alt="NVIDIA Logo">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <div class="profile-card">
+                        <div class="profile-info">
+                            <blockquote>
+                                "Текущие ИИ системы далеки от настоящего интеллекта"
+                            </blockquote>
+                            <p>— Ян ЛеКун</p>
+                            <div class="bio">
+                                <p>- Главный научный сотрудник Meta AI</p>
+                                <p>- Лауреат премии Тьюринга (2018)</p>
+                                <p>- Скептик в отношении быстрого достижения AGI</p>
+                            </div>
+                        </div>
+                        <div class="profile-photo">
+                            <img src="assets/images/yen_le_cunn.png" alt="Ян ЛеКун">
+                            <div class="company-logos">
+                                <img src="assets/images/meta_logo.png" alt="Meta Logo">
+                                <p class="logo-note">*экстремисты и террористы</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <h3>Утверждения vs Реальность</h3>
+                    <div style="text-align: left; font-size: 0.8em;">
+                        <div style="margin-bottom: 20px;">
+                            <p style="color: #ff6b6b;">2022-2023: "LLM не способны к настоящему рассуждению и логике"
+                            </p>
+                            <p style="color: #4ecdc4;">2024: Claude 3.5 и линейка моделей o1 демонстрируют сложные
+                                логические выводы и решение задач на уровне PhD</p>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <p style="color: #ff6b6b;">2023: "Генерация видео - нерешаемая задача в ближайшие годы"</p>
+                            <p style="color: #4ecdc4;">2024: Sora, Veo2 и другие видео-модели генерируют реалистичные
+                                видео с симуляцией модели мира</p>
+                        </div>
+                        <div>
+                            <p style="color: #ff6b6b;">2023: "AGI требует фундаментально новых подходов"</p>
+                            <p style="color: #4ecdc4;">2024: Существующие LLM архитектуры показывают признаки общего
+                                интеллекта</p>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <section>
+                <img src="assets/images/last_slide.png" style="max-height: 600px;">
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Load reveal.js first -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.js"></script>
+
+    <script>
+        // Initialize after the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function () {
+            Reveal.initialize({
+                hash: true,
+                embedded: false,
+                keyboard: true,
+                center: true,
+                progress: true,
+                controls: true
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LLM Context Window Demo</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://unpkg.com/gpt-tokenizer/dist/cl100k_base.js"></script>
+    <style>
+        body {
+            margin: 0;
+            background-color: #191919;
+            color: #fff;
+            font-family: monospace;
+        }
+        .container {
+            padding: 20px;
+        }
+        .context-window {
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+        .token {
+            display: inline-block;
+            padding: 2px 4px;
+            margin: 2px;
+            border-radius: 3px;
+            transition: opacity 0.3s;
+        }
+        .visible {
+            background-color: #2a2a2a;
+            opacity: 1;
+        }
+        .fading {
+            background-color: #2a2a2a;
+            opacity: 0.5;
+        }
+        .lost {
+            background-color: #2a2a2a;
+            opacity: 0.2;
+        }
+        .button-container {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        button:disabled {
+            background-color: #333;
+            cursor: not-allowed;
+        }
+        .stats {
+            margin-top: 10px;
+            color: #888;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { encode, decode } = GPTTokenizer_cl100k_base;
+
+        function ContextWindowDemo() {
+            const [step, setStep] = React.useState(0);
+            const maxTokens = 75;
+
+            const [language, setLanguage] = React.useState('en');
+
+            const texts = {
+                en: {
+                    title: "Контекстное окно LLM",
+                    baseText: "The quick brown fox jumps over the lazy dog. This demonstrates how language models process text using tokens.",
+                    additions: [
+                        " In natural language processing, tokens are the basic units that the model works with. These can be words, parts of words, or even punctuation marks.",
+                        " The context window is an important limitation in transformer-based models. When it fills up, the model starts losing information from the beginning.",
+                        " This is why long conversations or documents require careful management, often using techniques like summarization or sliding windows to maintain context.",
+                        " Modern State Of The Art language models have improved context windows, but they still have their limits. Understanding these limitations is key for effective prompt engineering."
+                    ],
+                    addButton: "добавить текст",
+                    resetButton: "сбросить",
+                    tokens: "Токены",
+                    outOfWindow: "токенов вне контекстного окна",
+                    switchLang: "Переключить на русский текст"
+                },
+                ru: {
+                    title: "Контекстное окно LLM",
+                    baseText: "Быстрая рыжая лиса перепрыгнула через ленивую собаку. Это демонстрация того, как языковые модели обрабатывают текст с помощью токенов.",
+                    additions: [
+                        " В обработке естественного языка токены являются базовыми единицами, с которыми работает модель. Это могут быть слова, части слов или даже знаки препинания.",
+                        " Контекстное окно является важным ограничением в моделях на основе трансформеров. Когда оно заполняется, модель начинает терять информацию с начала.",
+                        " Именно поэтому длинные разговоры или документы требуют тщательного управления, часто используя методы вроде суммаризации или скользящих окон для сохранения контекста.",
+                        " Современные языковые модели имеют улучшенные контекстные окна, но они все еще имеют свои пределы. Понимание этих ограничений ключевое для эффективного промпт-инжиниринга."
+                    ],
+                    addButton: "Добавить текст",
+                    resetButton: "Сбросить",
+                    tokens: "Токенов",
+                    outOfWindow: "токенов вне контекстного окна",
+                    switchLang: "Переключить на английский"
+                }
+            };
+
+            const getCurrentText = () => {
+                let text = texts[language].baseText;
+                for (let i = 0; i < step; i++) {
+                    text += texts[language].additions[i];
+                }
+                return text;
+            };
+
+            const toggleLanguage = () => {
+                const newLang = language === 'en' ? 'ru' : 'en';
+                setLanguage(newLang);
+                setStep(0);
+            };
+
+            const renderTokens = () => {
+                const text = getCurrentText();
+                const tokens = encode(text);
+                const decodedTokens = tokens.map(t => decode([t]));
+                const startIndex = Math.max(0, tokens.length - maxTokens);
+
+                return decodedTokens.map((token, index) => {
+                    let className = "token ";
+                    if (index < tokens.length - maxTokens) {
+                        className += "lost";
+                    } else if (index < tokens.length - maxTokens + 5) {
+                        className += "fading";
+                    } else {
+                        className += "visible";
+                    }
+
+                    const hue = (index * 37) % 360;
+                    return (
+                        <span
+                            key={index}
+                            className={className}
+                            style={{
+                                backgroundColor: `hsla(${hue}, 70%, 40%, 0.3)`
+                            }}
+                        >
+                            {token}
+                        </span>
+                    );
+                });
+            };
+
+            const reset = () => {
+                setStep(0);
+            };
+
+            const currentTokenCount = encode(getCurrentText()).length;
+
+            return (
+                <div className="container">
+                    <h2>{texts[language].title}</h2>
+                    <div className="stats">
+                        {texts[language].tokens}: {currentTokenCount} / {maxTokens}
+                        {currentTokenCount > maxTokens &&
+                            ` (${currentTokenCount - maxTokens} ${texts[language].outOfWindow})`
+                        }
+                    </div>
+                    <div className="context-window">
+                        {renderTokens()}
+                    </div>
+                    <div className="button-container">
+                        <button
+                            onClick={() => setStep(prev => Math.min(prev + 1, texts[language].additions.length))}
+                            disabled={step >= texts[language].additions.length}
+                        >
+                            {texts[language].addButton}
+                        </button>
+                        <button onClick={reset}>
+                            {texts[language].resetButton}
+                        </button>
+                        <button onClick={toggleLanguage}>
+                            {texts[language].switchLang}
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<ContextWindowDemo />, document.getElementById('root'));
+    </script>
+</body>
+</html>
