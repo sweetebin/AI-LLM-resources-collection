@@ -8,7 +8,7 @@
 
 ## LLM API и Сервисы
 - [OpenRouter](https://openrouter.ai/) - Агрегатор LLM API
-  > Доступ к современным моделям как Claude-3-Sonnet, DeepSeek-R1 через единый API
+  > Доступ к современным моделям как Claude-3-Sonnet, DeepSeek-R1 через единый API (возможна полная анонимная оплата через metamask с криптой)
 
 ## Интерфейсы и Инструменты
 - [SillyTavern](https://github.com/SillyTavern/SillyTavern) - Чат-интерфейс для работы с LLM
@@ -17,6 +17,7 @@
 ## Научные Публикации
 - [Attention Is All You Need](https://arxiv.org/abs/1706.03762) (2017) - Статья о Transformer
   > Революционная статья, представившая архитектуру Transformer, ставшую основой современных LLM
+- [Situational awarness](https://t.co/XSH2wseW3E) (2024) - SITUATIONAL AWARENESS: The Decade Ahead (о перспективах)
 
 ## Исследовательские Организации
 - [Epoch AI](https://epoch.ai/) - Организация исследований ИИ
@@ -35,7 +36,7 @@
 - [@GaryMarcus](https://x.com/GaryMarcus) - Gary Marcus, критик современного AI
 - [@fchollet](https://x.com/fchollet) - François Chollet, создатель Keras
 - [@DarioAmodei](https://x.com/DarioAmodei) - DarioAmodei, CEO Anthropic
-- [@leopoldasch](https://x.com/leopoldasch) - Leopold Aschenbrenner, ex OpenAi Alignment team, автор Situational awarness https://t.co/XSH2wseW3E
+- [@leopoldasch](https://x.com/leopoldasch) - Leopold Aschenbrenner, ex OpenAi Alignment team, автор 
 - [@polynoamial](https://x.com/polynoamial) - Researching multi-agent reasoning 
 @OpenAI
 
@@ -46,6 +47,14 @@
 - https://youtu.be/I6qQinoY9WM Fireside Chat With Ilya Sutskever and Jensen Huang AI Today and Vision of the Future March 2023
 - https://youtu.be/jPluSXJpdrA OpenAI's Noam Brown, Ilge Akkaya and Hunter Lightman on o1 and Teaching LLMs to Reason Better
 - https://youtu.be/snkOMOjiVOk Inside Anthropic's Race to Build a Smarter Claude and Human-Level AI | WSJ
+- https://youtu.be/oFfVt3S51T4 Cursor Team: Future of Programming with AI | Lex Fridman Podcast #447
 ## Инструменты Разработчика
 - [LangChain](https://github.com/langchain-ai/langchain) - Фреймворк для создания приложений с LLM
 - [LlamaIndex](https://github.com/jerryjliu/llama_index) - Фреймворк для работы с данными в LLM приложениях
+
+## Агенты (in production)
+- [Cline](https://github.com/cline/cline) - Автономный агент, интегрированный в IDE. Может автономно выполнять задачи (дополнение к VSCODE, Работает со всеми доступными апи включая ollama и openrouter)
+- [Cursor](https://www.cursor.com/) - ИИ IDE, агенты, автокомплиты, human-in-the-loop
+- [Perplexity](https://www.perplexity.ai/) - Умный веб поисковик
+- [Perplexica](https://github.com/ItzCrazyKns/Perplexica) - опен сурс Perplexica, работает с ollama и openrouter
+- [Devin](https://devin.ai/) - "Devin is a collaborative AI teammate", стоит 500 баксов и направлен на бизнес
