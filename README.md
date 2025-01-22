@@ -36,7 +36,7 @@
 - [@GaryMarcus](https://x.com/GaryMarcus) - Gary Marcus, критик современного AI
 - [@fchollet](https://x.com/fchollet) - François Chollet, создатель Keras
 - [@DarioAmodei](https://x.com/DarioAmodei) - DarioAmodei, CEO Anthropic
-- [@leopoldasch](https://x.com/leopoldasch) - Leopold Aschenbrenner, ex OpenAi Alignment team, автор 
+- [@leopoldasch](https://x.com/leopoldasch) - Leopold Aschenbrenner, ex OpenAi Alignment team, автор [Situational awarness](https://t.co/XSH2wseW3E)
 - [@polynoamial](https://x.com/polynoamial) - Researching multi-agent reasoning 
 @OpenAI
 
