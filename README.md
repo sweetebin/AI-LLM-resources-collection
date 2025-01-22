@@ -35,8 +35,8 @@
 - [@GaryMarcus](https://x.com/GaryMarcus) - Gary Marcus, критик современного AI
 - [@fchollet](https://x.com/fchollet) - François Chollet, создатель Keras
 - [@DarioAmodei](https://x.com/DarioAmodei) - DarioAmodei, CEO Anthropic
-- [@leopoldasch] (https://x.com/leopoldasch) - Leopold Aschenbrenner, ex OpenAi Alignment team, автор Situational awarness https://t.co/XSH2wseW3E
-- [@polynoamial] (https://x.com/polynoamial) - Researching multi-agent reasoning 
+- [@leopoldasch](https://x.com/leopoldasch) - Leopold Aschenbrenner, ex OpenAi Alignment team, автор Situational awarness https://t.co/XSH2wseW3E
+- [@polynoamial](https://x.com/polynoamial) - Researching multi-agent reasoning 
 @OpenAI
 
 
@@ -45,6 +45,7 @@
 - https://youtu.be/POh4SAotSY0 @Asianometry & Dylan Patel – How the Semiconductor Industry Actually Works
 - https://youtu.be/I6qQinoY9WM Fireside Chat With Ilya Sutskever and Jensen Huang AI Today and Vision of the Future March 2023
 - https://youtu.be/jPluSXJpdrA OpenAI's Noam Brown, Ilge Akkaya and Hunter Lightman on o1 and Teaching LLMs to Reason Better
+- https://youtu.be/snkOMOjiVOk Inside Anthropic's Race to Build a Smarter Claude and Human-Level AI | WSJ
 ## Инструменты Разработчика
 - [LangChain](https://github.com/langchain-ai/langchain) - Фреймворк для создания приложений с LLM
 - [LlamaIndex](https://github.com/jerryjliu/llama_index) - Фреймворк для работы с данными в LLM приложениях
