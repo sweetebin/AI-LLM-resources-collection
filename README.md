@@ -7,7 +7,7 @@
 
 ### Лучшие современные мультимодальные модели (оптимизированы под 20-36 ГБ VRAM)
 - [google/gemma-3-27b-it](https://huggingface.co/google/gemma-3-27b-it) - Мощная мультимодальная модель от Google
-- [mistralai/mistral-small-3.1-24b-instruct](https://huggingface.co/mistralai/mistral-small-3.1-24b-instruct) - Оптимизированная модель с отличным балансом производительности и требований к ресурсам
+- [mistralai/mistral-small-3.1-24b-instruct](https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Base-2503) - Оптимизированная модель с отличным балансом производительности и требований к ресурсам
 
 ### Vision-Action модели для end-to-end автоматизации
 - [qwen/qwen-vl-max](https://huggingface.co/qwen/qwen-vl-max) - Продвинутая модель для работы с визуальными данными и автоматизации
